@@ -5,11 +5,15 @@
 -----------------------------------------------------------------------------------------
 
 -- Your code here
+local peixeTable = {}
+
+local tempo = 0
+
 local physics = require( "physics" )
 physics.start()
 
 
---mostra a fisica
+-- Mostra a fisica
 physics.setDrawMode("hybrid")
 
 local collisionFilter = { groupIndex = -1 }
@@ -30,7 +34,7 @@ local background = display.newImageRect("oceano.png", 800, 1400 )
 background.x = display.contentCenterX
 background.y = display.contentCenterY
 
---SPRITE Boneco
+-- SPRITE Boneco
 local sheetOptions = { width = 150, height = 75, numFrames = 10 }
 
 local boneco = graphics.newImageSheet( "cezinha-dos-mergulhos.png", sheetOptions )
@@ -48,22 +52,23 @@ local sequences = {
 local player = display.newSprite( boneco, sequences )
 
 player.x = display.contentCenterX
-player.y = --distância do cavalo ao chão
+player.y = 50--distância do cavalo ao chão
+player: scale(0.8, 0.8)
 player: rotate(90)
-
 player:play()
+player.myName = "boneco"
 
-local boxPhysics = { halfWidth=50, halfHeight=20, x=10, y=12, angle=0 }
-physics.addBody( player, "dynamic",  { box=boxPhysics, friction = 1})
+local boxPhysics = { halfWidth=33, halfHeight=18, x=10, y=12, angle=0 }
+physics.addBody( player, "dynamic",  { box=boxPhysics, friction = 1, density=1})
 
---Peixes
-local peixe = display.newImageRect("peixe.jpg",80, 50)
-peixe.x = display.contentCenterX -100
-peixe.y = display.contentCenterY +400
-physics.addBody( peixe, {radius=10, filter = collisionFilter})
-peixe: setLinearVelocity ( 0, -1000)
-peixe: rotate(-90)
-
+-- Peixes
+-- local peixe = display.newImageRect("peixe.jpg",80, 50)
+-- peixe.x = display.contentCenterX -100
+-- peixe.y = display.contentCenterY +400
+-- physics.addBody( peixe, {radius=10, filter = collisionFilter})
+-- peixe: setLinearVelocity ( 0, -1000)
+-- peixe: rotate(-90)
+-- peixe.myName = "peixe"
 
 
 
@@ -79,6 +84,7 @@ setadireita.y = display.contentCenterY+ 220
 moverx = 0 -- variavel usada para mover o boneco ao longo do eixo x
 velocidade = 6 -- Set Walking velocidade
 
+-- Meove o mergulhador para a esquerda e direita
 local function movePlayer(event)
     player.x = player.x + moverx
 end
@@ -88,14 +94,94 @@ function playerVelocity(event)
     if (event.phase == "began") then
         if event.x  >= display.contentCenterX then
             moverx = velocidade
-            
     elseif event.x <= display.contentCenterX then
         moverx = -velocidade
-    
-
 end
     elseif (event.phase == "ended") then
         moverx = 0
     end
 end
 Runtime:addEventListener("touch", playerVelocity)
+
+
+
+-- Gerando varios peixes
+function gerarPeixe(event)
+    local whereFrom = math.random(4)
+    local peixe = display.newImageRect("peixe.jpg",80, 50)
+    physics.addBody( peixe, {radius=10, filter = collisionFilter})
+    table.insert( peixeTable, peixe)
+    peixe.y = 400 
+    peixe: rotate(-90)
+    peixe.name = "peixe"
+
+    
+    if ( whereFrom == 1 ) then
+        peixe.x = display.contentCenterX + 125
+        peixe: setLinearVelocity ( 0, -1000)
+    elseif ( whereFrom == 2) then
+        peixe.x = display.contentCenterX - 125
+        peixe: setLinearVelocity ( 0, -1000)
+    elseif ( whereFrom == 3) then
+        peixe.x = display.contentCenterX - 41
+        peixe: setLinearVelocity ( 0, -1000)
+    elseif ( whereFrom == 4) then
+        peixe.x = display.contentCenterX + 41
+        peixe: setLinearVelocity ( 0, -1000)
+    end
+end
+
+-- loopGame
+
+local function gameLoop()
+    gerarPeixe()
+
+    for i = #peixeTable, 1, -1 do
+        local essePeixe = peixeTable[i]
+ 
+        if ( essePeixe.x < -100 or
+             essePeixe.x > display.contentWidth + 100 or
+             essePeixe.y < -100 or
+             essePeixe.y > display.contentHeight + 100 )
+        then
+            display.remove( essePeixe )
+            table.remove( peixeTable, i )
+        end
+ 
+    end
+ 
+end
+
+geradorDePeixe = timer.performWithDelay( 500, gameLoop, 0 )
+
+-- Colisão
+local function onCollision( event ) 
+    
+    if ( event.phase == "began" ) then
+        
+        local obj1 = event.object1
+        local obj2 = event.object2
+        
+        if ( ( obj1.myName == "boneco" and obj2.myName == "peixe" ) or ( obj1.myName == "peixe" and obj2.myName == "boneco" ) )
+        then
+            if ( died == false ) then
+                died = true
+                display.remove( player )
+            end
+        end
+    end 
+end
+
+Runtime:addEventListener( "collision", onCollision )
+
+-- Adicionando tempo
+local countText = display.newText( tempo, 250, -25, native.systemFont, 25 )
+countText:setFillColor( 0, 0, 0 )
+
+local function contagem( event )
+    print( event.count )
+    tempo = tempo + 1
+    countText.text = "Tempo: " ..tempo
+end
+
+timer.performWithDelay( 100, contagem, -1 )
