@@ -202,7 +202,6 @@ contVidas = display.newText( uiGroup, vidas, 80, -25, native.systemFont, 20 )
 contVidas:setFillColor( 0, 0, 0 )
 
 local function contagem()
-    --print( event.count )
     tempo = tempo + 1
     countText.text = "Tempo: " .. tempo
 end
@@ -219,9 +218,6 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 	
-	-- local physics = require( "physics" )
-    -- physics.pause()
-    -- physics.setGravity(0,0)
 
     sceneGroup:insert(backGroup);
     sceneGroup:insert(mainGroup);
@@ -243,7 +239,6 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
-        --physics.start()
         contVidas.text = "Vidas: " .. vidas
         Runtime:addEventListener("enterFrame", movePlayer)
         geradorDePeixe = timer.performWithDelay( 500, gameLoop, 0 )
@@ -265,7 +260,7 @@ function scene:hide( event )
 		-- Code here runs immediately after the scene goes entirely off screen
         Runtime:removeEventListner("enterFrame", movePlayer)
         Runtime:removeEventListner("touch",playerVelocity)
-        --Runtime:removeEventListner("collision", onCollision)
+        
         physics.pause()
         composer.removeScene("game");
 	end
