@@ -16,8 +16,8 @@ local mainGroup = display.newGroup()
 local uiGroup = display.newGroup()
 
 local physics = require( "physics" )
-physics.setGravity(0,0)
 physics.start()
+physics.setGravity(0,0)
 
 local vidas = 2
 local tempo = 0
@@ -36,7 +36,7 @@ background.x = display.contentCenterX
 background.y = display.contentCenterY
 
 -- SPRITE Boneco
-local sheetOptions = { width = 150, height = 75, numFrames = 10 }
+local sheetOptions = { width = 150 , height = 75, numFrames = 10 }
 
 local boneco = graphics.newImageSheet( "cezinha-dos-mergulhos.png", sheetOptions )
 
@@ -53,14 +53,13 @@ local sequences = {
 local player = display.newSprite( boneco, sequences )
 player.x = display.contentCenterX
 player.y = 50--distância do cavalo ao chão
-physics.addBody( player, "static", { radius = 25 })
+local boxPhysics = { halfWidth=33, halfHeight=18, x=10, y=12, angle=0 }
+physics.addBody( player, { box=boxPhysics, friction = 1, density=1, isSensor = true } )
 player:scale(0.8, 0.8)
 player:rotate(90)
 player:play()
 player.myName = "boneco"
 
---local boxPhysics = { halfWidth=33, halfHeight=18, x=10, y=12, angle=0 }
---physics.addBody( player, { box=boxPhysics, friction = 1, density=1, isSensor = true } )
 
 
 -- Peixes
@@ -99,17 +98,16 @@ end
 
 local function playerVelocity(event)
     if(event.phase == "began")then
-        if (event.x > display.contentCenterX) then
+        if (event.x >= display.contentCenterX) then
             moverx = velocidade
-        elseif (event.x < display.contentCenterX) then
+        elseif (event.x <= display.contentCenterX) then
             moverx = -velocidade
         end
     elseif (event.phase == "ended") then
         moverx = 0
     end
 end
-setaesquerda:addEventListener("touch",playerVelocity)
-setadireita:addEventListener("touch",playerVelocity)
+background:addEventListener("touch", playerVelocity)
 
 
 -- Gerando varios peixes
@@ -117,7 +115,7 @@ local function gerarPeixe(event)
     local whereFrom = math.random(4)
     local peixe = display.newImageRect(mainGroup, "peixe.png",80, 50)
     table.insert( peixeTable, peixe)
-    peixe.y = 400 
+    peixe.y = 500
     --physics.addBody( peixe, { radius=20, filter = collisionFilter } )
     physics.addBody(peixe, { radius =  25, isSensor=true} )
     peixe:rotate(-90)
@@ -126,16 +124,16 @@ local function gerarPeixe(event)
     
     if ( whereFrom == 1 ) then
         peixe.x = display.contentCenterX + 125
-        peixe:setLinearVelocity ( 0, -800)
+        peixe:setLinearVelocity ( 0, -500)
     elseif ( whereFrom == 2) then
         peixe.x = display.contentCenterX - 125
-        peixe:setLinearVelocity ( 0, -800)
+        peixe:setLinearVelocity ( 0, -500)
     elseif ( whereFrom == 3) then
         peixe.x = display.contentCenterX - 41
-        peixe:setLinearVelocity ( 0, -800)
+        peixe:setLinearVelocity ( 0, -500)
     elseif ( whereFrom == 4) then
         peixe.x = display.contentCenterX + 41
-        peixe:setLinearVelocity ( 0, -800)
+        peixe:setLinearVelocity ( 0, -500)
     end
 end
 
@@ -160,7 +158,7 @@ local function gameLoop()
 end
 
 local function atualizaVidas()
-    print("shshs")
+    
     if(vidas > 0) then
         vidas = vidas - 1
         contVidas.text = "Vidas: " .. vidas 
@@ -170,17 +168,25 @@ end
 
 -- Colisão
 
+local function endGame()
+    composer.gotoScene( "menu", { time=800, effect="crossFade" } )
+end
+
 local function colizao( self, event )
     local obj1 = event.target
     local obj2 = event.other
-    print("bateu")
-    print(obj1.myName)
-    print(obj2.myName)
+
 
     if(obj2.myName == "peixe" and obj1.myName == "boneco" )
     then
         display.remove(obj2)
         atualizaVidas()
+        if (vidas == 0) then
+            display.remove( player )
+            Runtime:removeEventListener("enterFrame", movePlayer)
+            timer.performWithDelay( 300, endGame )
+        end
+
         for i = #peixeTable, 1, -1 do
             if ( peixeTable[i] == obj2) then
                 table.remove( peixeTable, i)
@@ -224,7 +230,7 @@ function scene:create( event )
     sceneGroup:insert(uiGroup);
 
     -- Mostra a fisica
-    --physics.setDrawMode("hybrid")
+    -- physics.setDrawMode("hybrid")
     contagem();
     
 end  
@@ -258,9 +264,10 @@ function scene:hide( event )
         timer.cancel(geradorDePeixe);
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-        Runtime:removeEventListner("enterFrame", movePlayer)
-        Runtime:removeEventListner("touch",playerVelocity)
         
+        Runtime:removeEventListener("enterFrame", movePlayer)
+        Runtime:removeEventListener("touch",playerVelocity)
+
         physics.pause()
         composer.removeScene("game");
 	end
