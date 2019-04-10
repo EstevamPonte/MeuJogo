@@ -22,8 +22,9 @@ physics.setGravity(0,0)
 local vidas = 2
 local tempo = 0
 local contVidas = nil
-
+local bolhaTable = {}
 local peixeTable = {}
+local tanqueTable = {}
 
 local collisionFilter = { groupIndex = -1 }
 
@@ -137,6 +138,46 @@ local function gerarPeixe(event)
     end
 end
 
+
+
+local function gerarBolha(event)
+    local whereFrom = math.random(1)
+    local bolha = display.newImageRect(mainGroup, "bubble.png", 35, 35 )
+    table.insert( bolhaTable, bolha)
+    physics.addBody(bolha, "dynamic")
+    bolha.myName = "bolha"
+    bolha.y = 500
+    
+    
+     if ( whereFrom == 1 ) then
+        -- From the left
+        bolha.x = math.random(300)
+        bolha:setLinearVelocity( 0, math.random( -100, -50 ) )
+     end
+end
+
+
+local function gerarTanque(event)
+    local whereFrom = math.random(2)
+    local tanque = display.newImageRect(mainGroup, "tanque.png", 50, 50 )
+    table.insert( tanqueTable, tanque)
+    tanque.y = 500
+    physics.addBody(tanque, "dynamic", {radius = 25, isSensor = true})
+    tanque.myName = "tanque"
+
+    
+    if ( whereFrom == 1 ) then
+        tanque.x = display.contentCenterX + 50
+        tanque:setLinearVelocity ( 0, -100)
+    elseif ( whereFrom == 2) then
+        tanque.x = display.contentCenterX - 50
+        tanque:setLinearVelocity ( 0, -100)
+    end
+    tanque:applyTorque( 0.5 )
+end
+
+
+
 -- loopGame
 
 local function gameLoop()
@@ -157,7 +198,48 @@ local function gameLoop()
     end
 end
 
-local function atualizaVidas()
+
+local function gameLoop2()
+    gerarBolha()
+
+    for i = #bolhaTable, 1, -1 do
+        local esseBolha = bolhaTable[i]
+
+        if ( esseBolha.x < -100 or
+            esseBolha.x > display.contentWidth + 100 or
+            esseBolha.y < -100 or
+            esseBolha.y > display.contentHeight + 100 )
+        then
+            display.remove( esseBolha )
+            table.remove( bolhaTable, i )
+        end
+
+    end
+end
+
+local function gameLoop3()
+    gerarTanque()
+
+    for i = #tanqueTable, 1, -1 do
+        local esseTanque = tanqueTable[i]
+
+        if ( esseTanque.x < -100 or
+            esseTanque.x > display.contentWidth + 100 or
+            esseTanque.y < -100 or
+            esseTanque.y > display.contentHeight + 100 )
+        then
+            display.remove( esseTanque )
+            table.remove( tanqueTable, i )
+        end
+
+    end
+end
+
+
+-- Colisão
+
+
+local function diminuirVidas()
     
     if(vidas > 0) then
         vidas = vidas - 1
@@ -165,8 +247,13 @@ local function atualizaVidas()
     end
 end
 
-
--- Colisão
+local function aumentarVidas()
+    
+    if(vidas < 2) then
+        vidas = vidas + 1
+        contVidas.text = "Vidas: " .. vidas 
+    end
+end
 
 local function endGame()
     composer.gotoScene( "menu", { time=800, effect="crossFade" } )
@@ -180,7 +267,7 @@ local function colizao( self, event )
     if(obj2.myName == "peixe" and obj1.myName == "boneco" )
     then
         display.remove(obj2)
-        atualizaVidas()
+        diminuirVidas()
         if (vidas == 0) then
             display.remove( player )
             Runtime:removeEventListener("enterFrame", movePlayer)
@@ -194,6 +281,18 @@ local function colizao( self, event )
             end
         end
 
+    end
+    
+    if(obj2.myName == "tanque" and obj1.myName == "boneco" )
+    then
+        display.remove(obj2)
+        aumentarVidas()
+        for i = #tanqueTable, 1, -1 do
+            if ( tanqueTable[i] == obj2) then
+                table.remove( tanqueTable, i)
+                break
+            end
+        end
     end
 end
 
@@ -248,6 +347,8 @@ function scene:show( event )
         contVidas.text = "Vidas: " .. vidas
         Runtime:addEventListener("enterFrame", movePlayer)
         geradorDePeixe = timer.performWithDelay( 500, gameLoop, 0 )
+        geradorDeBolha = timer.performWithDelay( 2000, gameLoop2, 0 )
+        geradorDeTanque = timer.performWithDelay( 5000, gameLoop3, 0 )
         --Runtime:addEventListener( "collision", onCollision )
 	end
 end
@@ -262,6 +363,8 @@ function scene:hide( event )
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
         timer.cancel(geradorDePeixe);
+        timer.cancel(geradorDeBolha)
+        timer.cancel(geradorDeTanque)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
         
