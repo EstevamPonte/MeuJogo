@@ -7,6 +7,36 @@ local scene = composer.newScene()
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
+
+
+local sheetOptions2 =
+{
+    frames =
+    {
+        {   -- Inimigo peixe --
+        x = 0,
+        y = 0,
+        width = 129,
+        height = 142
+        },
+        {   -- Inimigo tubarão --
+         x = 0,
+        y = 150,
+        width = 129,
+        height = 142
+        },
+        {   -- Inimigo aguá viva --
+         x = 0,
+        y = 300,
+        width = 129,
+        height = 132
+        },
+    }
+}
+
+local objectSheet2 = graphics.newImageSheet( "folha.png", sheetOptions2 )
+
+
 local function gotoGame()
 	composer.gotoScene( "game" )	
 end
@@ -25,6 +55,11 @@ local contVidas = nil
 local bolhaTable = {}
 local peixeTable = {}
 local tanqueTable = {}
+local peixe
+local velocaidadePeixe = 4000
+local scrollSpeed = 1
+local _H = display.contentHeight
+
 
 local collisionFilter = { groupIndex = -1 }
 
@@ -35,6 +70,12 @@ local died = false -- Variavel para marcar vida ou morte do mergulhador
 local background = display.newImageRect(backGroup, "oceano.png", 800, 1400 )
 background.x = display.contentCenterX
 background.y = display.contentCenterY
+
+-- local background2 = display.newImageRect(backGroup, "oceano.png", 800, 1400 )
+-- background2.x = display.contentCenterX
+-- background2.y = display.contentCenterY - display.actualContentHeight
+
+
 
 -- SPRITE Boneco
 local sheetOptions = { width = 150 , height = 75, numFrames = 10 }
@@ -112,29 +153,46 @@ background:addEventListener("touch", playerVelocity)
 
 
 -- Gerando varios peixes
+
+local function aumentarVelocidade()
+    velocaidadePeixe = velocaidadePeixe -1000
+end
+
+
 local function gerarPeixe(event)
     local whereFrom = math.random(4)
-    local peixe = display.newImageRect(mainGroup, "peixe.png",80, 50)
+    local tipo = math.random(3)
+    peixe = display.newImageRect(mainGroup, objectSheet2, tipo, 50, 80)
+    -- local peixe = display.newImageRect(mainGroup, "peixe.png",80, 50)
     table.insert( peixeTable, peixe)
     peixe.y = 500
     --physics.addBody( peixe, { radius=20, filter = collisionFilter } )
     physics.addBody(peixe, { radius =  25, isSensor=true} )
-    peixe:rotate(-90)
     peixe.myName = "peixe"
-
     
     if ( whereFrom == 1 ) then
         peixe.x = display.contentCenterX + 125
-        peixe:setLinearVelocity ( 0, -500)
+        transition.to(peixe,{y = -200, time = velocaidadePeixe})
+        -- peixe:setLinearVelocity ( 0, -500)
     elseif ( whereFrom == 2) then
         peixe.x = display.contentCenterX - 125
-        peixe:setLinearVelocity ( 0, -500)
+        transition.to(peixe,{y = -200, time = velocaidadePeixe})
+
+        -- peixe:setLinearVelocity ( 0, -500)
     elseif ( whereFrom == 3) then
         peixe.x = display.contentCenterX - 41
-        peixe:setLinearVelocity ( 0, -500)
+        transition.to(peixe,{y = -200, time = velocaidadePeixe})
+
+        -- peixe:setLinearVelocity ( 0, -500)
     elseif ( whereFrom == 4) then
         peixe.x = display.contentCenterX + 41
-        peixe:setLinearVelocity ( 0, -500)
+        transition.to(peixe,{y = -200, time = velocaidadePeixe})
+
+        -- peixe:setLinearVelocity ( 0, -500)
+    end
+    if (tipo == 2) then
+        peixe.xScale = 2
+        peixe.yScale = 2
     end
 end
 
@@ -313,6 +371,20 @@ end
 
 timer.performWithDelay( 100, contagem, 0 )
 
+
+-- local function move( event )
+
+   
+--     background.y = background.y + scrollSpeed
+--     background2.y = background2.y + scrollSpeed
+--     if ( background.y - display.contentHeight / 2 > display.contentHeight + 100 ) then 
+--         background:translate( 0, -background.contentHeight * 2 )
+--     end
+--     if ( background2.y - display.contentHeight / 2 > display.contentHeight + 100 ) then
+--         background2:translate( 0, -background2.contentHeight * 2 )
+--     end
+-- end
+
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -346,6 +418,8 @@ function scene:show( event )
         -- Code here runs when the scene is entirely on screen
         contVidas.text = "Vidas: " .. vidas
         Runtime:addEventListener("enterFrame", movePlayer)
+        timer.performWithDelay(5000, aumentarVelocidade, 3)
+        -- Runtime:addEventListener("enterFrame", move)
         geradorDePeixe = timer.performWithDelay( 500, gameLoop, 0 )
         geradorDeBolha = timer.performWithDelay( 2000, gameLoop2, 0 )
         geradorDeTanque = timer.performWithDelay( 5000, gameLoop3, 0 )
@@ -370,7 +444,7 @@ function scene:hide( event )
         
         Runtime:removeEventListener("enterFrame", movePlayer)
         Runtime:removeEventListener("touch",playerVelocity)
-
+        -- Runtime:removeEventListener("enterFrame", move)
         physics.pause()
         composer.removeScene("game");
 	end
