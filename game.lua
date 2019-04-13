@@ -49,7 +49,8 @@ local physics = require( "physics" )
 physics.start()
 physics.setGravity(0,0)
 
-local vidas = 2
+local vidas = 340
+local vidasPadrao = 340
 local tempo = 0
 local contVidas = nil
 local bolhaTable = {}
@@ -65,6 +66,16 @@ local collisionFilter = { groupIndex = -1 }
 
 local died = false -- Variavel para marcar vida ou morte do mergulhador
 
+local myRoundedRect = display.newRoundedRect( mainGroup, 310 , display.contentCenterY, 9, 350, 12 )
+myRoundedRect.strokeWidth = 3
+myRoundedRect:setFillColor( 0, 0, 0 )
+myRoundedRect:setStrokeColor( 0, 0, 0 )
+
+local myRoundedRect2 = display.newRoundedRect( mainGroup, 310 , display.contentHeight -70, 9, 340, 12 )
+myRoundedRect2.strokeWidth = 0
+myRoundedRect2:setFillColor( 0, 1, 0 )
+myRoundedRect2:setStrokeColor( 0, 0, 0 )
+myRoundedRect2.anchorY = 1
 
 
 local background = display.newImageRect(backGroup, "oceano.png", 800, 1400 )
@@ -77,7 +88,7 @@ background.y = display.contentCenterY
 
 
 
--- SPRITE Boneco
+-- SPRITE Boneco-------------------------------------------------------------------
 local sheetOptions = { width = 150 , height = 75, numFrames = 10 }
 
 local boneco = graphics.newImageSheet( "cezinha-dos-mergulhos.png", sheetOptions )
@@ -102,18 +113,7 @@ player:rotate(90)
 player:play()
 player.myName = "boneco"
 
-
-
--- Peixes
--- local peixe = display.newImageRect("peixe.jpg",80, 50)
--- peixe.x = display.contentCenterX -100
--- peixe.y = display.contentCenterY +400
--- physics.addBody( peixe, {radius=10, filter = collisionFilter})
--- peixe: setLinearVelocity ( 0, -1000)
--- peixe: rotate(-90)
--- peixe.myName = "peixe"
-
-
+---------------------------------------------------------------------------------
 
 
 local setaesquerda = display.newImageRect(mainGroup, "seta-1.png",60, 60)
@@ -151,8 +151,7 @@ local function playerVelocity(event)
 end
 background:addEventListener("touch", playerVelocity)
 
-
--- Gerando varios peixes
+-- Gerando varios peixes------------------------------------------------------------------------------
 
 local function aumentarVelocidade()
     velocaidadePeixe = velocaidadePeixe -1000
@@ -236,7 +235,7 @@ end
 
 
 
--- loopGame
+-- loopGame------------------------------------------------------------------------------------
 
 local function gameLoop()
     gerarPeixe()
@@ -292,6 +291,11 @@ local function gameLoop3()
 
     end
 end
+--------------------------------------------------------------------------------------
+local function endGame()
+    composer.gotoScene( "menu", { time=800, effect="crossFade" } )
+end
+
 
 
 -- Colisão
@@ -300,21 +304,39 @@ end
 local function diminuirVidas()
     
     if(vidas > 0) then
-        vidas = vidas - 1
+        vidas = vidas - 40
         contVidas.text = "Vidas: " .. vidas 
+        transition.to(myRoundedRect2, {time = 1000,height = vidas})
     end
 end
 
 local function aumentarVidas()
-    
-    if(vidas < 2) then
-        vidas = vidas + 1
-        contVidas.text = "Vidas: " .. vidas 
+
+    if(vidas < 340) then
+
+        local aux = vidas + 40
+
+        if ( aux >= vidasPadrao) then
+            transition.to(myRoundedRect2, {time = 1000,height = vidasPadrao})
+            print(vidas)
+        else
+            vidas = vidas + 40
+            contVidas.text = "Vidas: " .. vidas
+            transition.to(myRoundedRect2, {time = 1000,height = vidas})
+        end
     end
 end
 
-local function endGame()
-    composer.gotoScene( "menu", { time=800, effect="crossFade" } )
+local function descer()
+    vidas = vidas - 10
+    transition.to(myRoundedRect2, {time = 1000,height = vidas})
+   
+
+    if (vidas <= 0) then
+        display.remove( player )
+        Runtime:removeEventListener("enterFrame", movePlayer)
+        timer.performWithDelay( 300, endGame )
+    end
 end
 
 local function colizao( self, event )
@@ -326,7 +348,7 @@ local function colizao( self, event )
     then
         display.remove(obj2)
         diminuirVidas()
-        if (vidas == 0) then
+        if (vidas <= 0) then
             display.remove( player )
             Runtime:removeEventListener("enterFrame", movePlayer)
             timer.performWithDelay( 300, endGame )
@@ -375,14 +397,14 @@ timer.performWithDelay( 100, contagem, 0 )
 -- local function move( event )
 
    
---     background.y = background.y + scrollSpeed
---     background2.y = background2.y + scrollSpeed
---     if ( background.y - display.contentHeight / 2 > display.contentHeight + 100 ) then 
---         background:translate( 0, -background.contentHeight * 2 )
---     end
---     if ( background2.y - display.contentHeight / 2 > display.contentHeight + 100 ) then
---         background2:translate( 0, -background2.contentHeight * 2 )
---     end
+--         background.y = background.y - scrollSpeed
+--         background2.y = background2.y - scrollSpeed
+--         if ( background.y + _H / 2 < 0 ) then 
+--             background:translate( 0, background.contentHeight * 2 )
+--         end
+--         if ( background2.y + _H / 2 < 0 ) then
+--             background2:translate( 0, background2.contentHeight * 2 )
+--         end
 -- end
 
 -- -----------------------------------------------------------------------------------
@@ -419,10 +441,11 @@ function scene:show( event )
         contVidas.text = "Vidas: " .. vidas
         Runtime:addEventListener("enterFrame", movePlayer)
         timer.performWithDelay(5000, aumentarVelocidade, 3)
+        descendoVidas = timer.performWithDelay( 3000, descer, 0)
         -- Runtime:addEventListener("enterFrame", move)
         geradorDePeixe = timer.performWithDelay( 500, gameLoop, 0 )
         geradorDeBolha = timer.performWithDelay( 2000, gameLoop2, 0 )
-        geradorDeTanque = timer.performWithDelay( 5000, gameLoop3, 0 )
+        geradorDeTanque = timer.performWithDelay( 1000, gameLoop3, 0 )
         --Runtime:addEventListener( "collision", onCollision )
 	end
 end
@@ -439,9 +462,9 @@ function scene:hide( event )
         timer.cancel(geradorDePeixe);
         timer.cancel(geradorDeBolha)
         timer.cancel(geradorDeTanque)
+        timer.cancel(descendoVidas)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-        
         Runtime:removeEventListener("enterFrame", movePlayer)
         Runtime:removeEventListener("touch",playerVelocity)
         -- Runtime:removeEventListener("enterFrame", move)
