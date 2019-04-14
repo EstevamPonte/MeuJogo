@@ -52,14 +52,15 @@ physics.setGravity(0,0)
 local vidas = 340
 local vidasPadrao = 340
 local tempo = 0
-local contVidas = nil
 local bolhaTable = {}
 local peixeTable = {}
 local tanqueTable = {}
 local peixe
-local velocaidadePeixe = 4000
+local velocidadePeixe = 4000
 local scrollSpeed = 1
 local _H = display.contentHeight
+local velocidadeDeGeracao = 1000
+
 
 
 local collisionFilter = { groupIndex = -1 }
@@ -73,12 +74,12 @@ myRoundedRect:setStrokeColor( 0, 0, 0 )
 
 local myRoundedRect2 = display.newRoundedRect( mainGroup, 310 , display.contentHeight -70, 9, 340, 12 )
 myRoundedRect2.strokeWidth = 0
-myRoundedRect2:setFillColor( 0, 1, 0 )
+myRoundedRect2:setFillColor( 1, 1, 0)
 myRoundedRect2:setStrokeColor( 0, 0, 0 )
 myRoundedRect2.anchorY = 1
 
 
-local background = display.newImageRect(backGroup, "oceano.png", 800, 1400 )
+local background = display.newImageRect(backGroup, "oceano1.png", 800, 1400 )
 background.x = display.contentCenterX
 background.y = display.contentCenterY
 
@@ -154,7 +155,12 @@ background:addEventListener("touch", playerVelocity)
 -- Gerando varios peixes------------------------------------------------------------------------------
 
 local function aumentarVelocidade()
-    velocaidadePeixe = velocaidadePeixe -1000
+    velocidadePeixe = velocidadePeixe -1100
+    
+end
+
+local function velocidadeGerador()
+   
 end
 
 
@@ -166,26 +172,26 @@ local function gerarPeixe(event)
     table.insert( peixeTable, peixe)
     peixe.y = 500
     --physics.addBody( peixe, { radius=20, filter = collisionFilter } )
-    physics.addBody(peixe, { radius =  25, isSensor=true} )
+    physics.addBody(peixe, { radius = 15, isSensor=true} )
     peixe.myName = "peixe"
     
     if ( whereFrom == 1 ) then
         peixe.x = display.contentCenterX + 125
-        transition.to(peixe,{y = -200, time = velocaidadePeixe})
+        transition.to(peixe,{y = -200, time = velocidadePeixe})
         -- peixe:setLinearVelocity ( 0, -500)
     elseif ( whereFrom == 2) then
         peixe.x = display.contentCenterX - 125
-        transition.to(peixe,{y = -200, time = velocaidadePeixe})
+        transition.to(peixe,{y = -200, time = velocidadePeixe})
 
         -- peixe:setLinearVelocity ( 0, -500)
     elseif ( whereFrom == 3) then
         peixe.x = display.contentCenterX - 41
-        transition.to(peixe,{y = -200, time = velocaidadePeixe})
+        transition.to(peixe,{y = -200, time = velocidadePeixe})
 
         -- peixe:setLinearVelocity ( 0, -500)
     elseif ( whereFrom == 4) then
         peixe.x = display.contentCenterX + 41
-        transition.to(peixe,{y = -200, time = velocaidadePeixe})
+        transition.to(peixe,{y = -200, time = velocidadePeixe})
 
         -- peixe:setLinearVelocity ( 0, -500)
     end
@@ -253,6 +259,7 @@ local function gameLoop()
         end
 
     end
+    
 end
 
 
@@ -291,22 +298,25 @@ local function gameLoop3()
 
     end
 end
---------------------------------------------------------------------------------------
+-------Leva para a tela de menu----------------------------------------------------------
 local function endGame()
     composer.gotoScene( "menu", { time=800, effect="crossFade" } )
 end
 
+local function sumirSetas()
+    display.remove(setadireita, { time=800, effect="crossFade" })
+    display.remove(setaesquerda, { time=800, effect="crossFade" })
+end
 
 
--- Colisão
+-- Funçoes que fazem a vida ser alteradas------------------------------------------------
 
 
 local function diminuirVidas()
     
     if(vidas > 0) then
         vidas = vidas - 40
-        contVidas.text = "Vidas: " .. vidas 
-        transition.to(myRoundedRect2, {time = 1000,height = vidas})
+        transition.to(myRoundedRect2, {time = 300,height = vidas})
     end
 end
 
@@ -317,19 +327,18 @@ local function aumentarVidas()
         local aux = vidas + 40
 
         if ( aux >= vidasPadrao) then
-            transition.to(myRoundedRect2, {time = 1000,height = vidasPadrao})
-            print(vidas)
+            transition.to(myRoundedRect2, {time = 300,height = vidasPadrao})
+            
         else
             vidas = vidas + 40
-            contVidas.text = "Vidas: " .. vidas
-            transition.to(myRoundedRect2, {time = 1000,height = vidas})
+            transition.to(myRoundedRect2, {time = 300,height = vidas})
         end
     end
 end
 
 local function descer()
     vidas = vidas - 10
-    transition.to(myRoundedRect2, {time = 1000,height = vidas})
+    transition.to(myRoundedRect2, {time = 300,height = vidas})
    
 
     if (vidas <= 0) then
@@ -338,6 +347,9 @@ local function descer()
         timer.performWithDelay( 300, endGame )
     end
 end
+
+
+-- Colisão------------------------------------------------------------------------
 
 local function colizao( self, event )
     local obj1 = event.target
@@ -379,16 +391,14 @@ end
 player.collision = colizao
 player:addEventListener("collision")
 
--- Adicionando tempo
-local countText = display.newText( uiGroup, tempo, 250, -25, native.systemFont, 25 )
+-- Adicionando tempo--------------------------------------------------------------
+local countText = display.newText( uiGroup, tempo, display.contentCenterX, -25, native.systemFont, 25 )
 countText:setFillColor( 0, 0, 0 )
 
-contVidas = display.newText( uiGroup, vidas, 80, -25, native.systemFont, 20 )
-contVidas:setFillColor( 0, 0, 0 )
 
 local function contagem()
     tempo = tempo + 1
-    countText.text = "Tempo: " .. tempo
+    countText.text = tempo
 end
 
 timer.performWithDelay( 100, contagem, 0 )
@@ -428,6 +438,9 @@ function scene:create( event )
     
 end  
 -- show()
+
+
+
 function scene:show( event )
 
 	local sceneGroup = self.view
@@ -438,14 +451,15 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
-        contVidas.text = "Vidas: " .. vidas
         Runtime:addEventListener("enterFrame", movePlayer)
+        -- timer.performWithDelay(16000, velocidadeGerador, 3)
         timer.performWithDelay(5000, aumentarVelocidade, 3)
+        timer.performWithDelay(3000, sumirSetas, 1)
         descendoVidas = timer.performWithDelay( 3000, descer, 0)
         -- Runtime:addEventListener("enterFrame", move)
-        geradorDePeixe = timer.performWithDelay( 500, gameLoop, 0 )
+        geradorDePeixe = timer.performWithDelay( 600, gameLoop, 0 )
         geradorDeBolha = timer.performWithDelay( 2000, gameLoop2, 0 )
-        geradorDeTanque = timer.performWithDelay( 1000, gameLoop3, 0 )
+        geradorDeTanque = timer.performWithDelay( 5000, gameLoop3, 0 )
         --Runtime:addEventListener( "collision", onCollision )
 	end
 end
