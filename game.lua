@@ -300,7 +300,7 @@ local function gameLoop3()
 end
 -------Leva para a tela de menu----------------------------------------------------------
 local function endGame()
-    composer.gotoScene( "menu", { time=800, effect="crossFade" } )
+    composer.gotoScene( "restart", { time=800, effect="crossFade" } )
 end
 
 local function sumirSetas()
@@ -377,6 +377,9 @@ local function colizao( self, event )
     
     if(obj2.myName == "tanque" and obj1.myName == "boneco" )
     then
+        local coletandoTanque = audio.loadStream( "vidaAudio.ogg")
+		audio.play(coletandoTanque, {channel = 5})
+		audio.setVolume( 1.0 , {channel = 5} )
         display.remove(obj2)
         aumentarVidas()
         for i = #tanqueTable, 1, -1 do
@@ -431,6 +434,8 @@ function scene:create( event )
     sceneGroup:insert(backGroup);
     sceneGroup:insert(mainGroup);
     sceneGroup:insert(uiGroup);
+
+    
 
     -- Mostra a fisica
     -- physics.setDrawMode("hybrid")
