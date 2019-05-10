@@ -75,6 +75,12 @@ playButton.height=100
 
 
 
+local musica = audio.loadStream( "src/audio/telaMenuAudio.mp3")
+audio.play(musica, {channel = 2, loops = -1})
+audio.setVolume(0.5)
+
+
+
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -120,9 +126,10 @@ function scene:hide( event )
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
 		timer.cancel(geradorDeBolha)
+		audio.stop(2)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		composer.removeScene("menu");
+		composer.removeScene("Cenas.menu");
 
 	end
 end

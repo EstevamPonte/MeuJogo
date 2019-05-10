@@ -34,6 +34,11 @@ local sheetOptions2 =
     }
 }
 
+local musica = audio.loadStream( "src/audio/gameAudio.mp3")
+audio.play(musica, {channel = 2, loops = -1})
+audio.setVolume(0.3)
+
+
 local objectSheet2 = graphics.newImageSheet( "src/imagem/folha.png", sheetOptions2 )
 
 
@@ -60,7 +65,6 @@ local velocidadePeixe = 4000
 local scrollSpeed = 1
 local _H = display.contentHeight
 local velocidadeDeGeracao = 1000
-
 
 
 local collisionFilter = { groupIndex = -1 }
@@ -396,7 +400,7 @@ player.collision = colizao
 player:addEventListener("collision")
 
 -- Adicionando tempo--------------------------------------------------------------
-local countText = display.newText( uiGroup, tempo, display.contentCenterX, -25, native.systemFont, 25 )
+local countText = display.newText( uiGroup, tempo, display.contentCenterX, -25, "src/font/AmaticSC-Bold.ttf", 30 )
 countText:setFillColor( 0, 0, 0 )
 
 
@@ -483,13 +487,14 @@ function scene:hide( event )
         timer.cancel(geradorDeBolha)
         timer.cancel(geradorDeTanque)
         timer.cancel(descendoVidas)
+        audio.stop(2)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
         Runtime:removeEventListener("enterFrame", movePlayer)
         Runtime:removeEventListener("touch",playerVelocity)
         -- Runtime:removeEventListener("enterFrame", move)
         physics.pause()
-        composer.removeScene("game");
+        composer.removeScene("Cenas.game");
 	end
 end
 

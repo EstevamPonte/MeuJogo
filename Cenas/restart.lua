@@ -31,9 +31,12 @@ title.height=200
 
 local restartButton = display.newImageRect( mainGroup ,"src/imagem/restart.png", 500, 500 )
 restartButton.x = display.contentCenterX
-restartButton.y = display.contentCenterY
+restartButton.y = display.contentCenterY + 30
 restartButton.width=165
 restartButton.height=95
+
+local musica = audio.loadStream( "src/audio/telaMenuAudio.mp3")
+audio.play(musica, {channel = 2, loops = -1})
 
 
 
@@ -52,8 +55,8 @@ function scene:create( event )
 	
 	local pontuacao = composer.getVariable( "finalTime" )
 	print(pontuacao)
-	local countText = display.newText( mainGroup, pontuacao, display.contentCenterX, -25, native.systemFont, 25 )
-
+	local countText = display.newText( mainGroup, "Final Time: "..pontuacao, display.contentCenterX, 190, "src/font/AmaticSC-Bold.ttf",50 )
+	countText:setFillColor( 0, 0, 0 )
 end
 
 
@@ -81,10 +84,10 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-
+		audio.stop(2)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		composer.removeScene("restart");
+		composer.removeScene("Cenas.restart");
 	end
 end
 
