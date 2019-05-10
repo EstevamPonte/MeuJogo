@@ -34,7 +34,7 @@ local sheetOptions2 =
     }
 }
 
-local objectSheet2 = graphics.newImageSheet( "folha.png", sheetOptions2 )
+local objectSheet2 = graphics.newImageSheet( "src/imagem/folha.png", sheetOptions2 )
 
 
 local function gotoGame()
@@ -79,7 +79,7 @@ myRoundedRect2:setStrokeColor( 0, 0, 0 )
 myRoundedRect2.anchorY = 1
 
 
-local background = display.newImageRect(backGroup, "oceano1.png", 800, 1400 )
+local background = display.newImageRect(backGroup, "src/imagem/oceano1.png", 800, 1400 )
 background.x = display.contentCenterX
 background.y = display.contentCenterY
 
@@ -92,7 +92,7 @@ background.y = display.contentCenterY
 -- SPRITE Boneco-------------------------------------------------------------------
 local sheetOptions = { width = 150 , height = 75, numFrames = 10 }
 
-local boneco = graphics.newImageSheet( "cezinha-dos-mergulhos.png", sheetOptions )
+local boneco = graphics.newImageSheet( "src/imagem/mergulhador.png", sheetOptions )
 
 local sequences = {
     {
@@ -117,12 +117,12 @@ player.myName = "boneco"
 ---------------------------------------------------------------------------------
 
 
-local setaesquerda = display.newImageRect(mainGroup, "seta-1.png",60, 60)
+local setaesquerda = display.newImageRect(mainGroup, "src/imagem/seta-1.png",60, 60)
 setaesquerda.x = display.contentCenterX - 90
 setaesquerda.y = display.contentCenterY+ 220
 setaesquerda.myName="esquerda"
 
-local setadireita = display.newImageRect(mainGroup, "seta-2.png",60, 60)
+local setadireita = display.newImageRect(mainGroup, "src/imagem/seta-2.png",60, 60)
 setadireita.x = display.contentCenterX + 90
 setadireita.y = display.contentCenterY+ 220
 setadireita.myName="direita"
@@ -205,7 +205,7 @@ end
 
 local function gerarBolha(event)
     local whereFrom = math.random(1)
-    local bolha = display.newImageRect(mainGroup, "bubble.png", 35, 35 )
+    local bolha = display.newImageRect(mainGroup, "src/imagem/bubble.png", 35, 35 )
     table.insert( bolhaTable, bolha)
     physics.addBody(bolha, "dynamic")
     bolha.myName = "bolha"
@@ -222,7 +222,7 @@ end
 
 local function gerarTanque(event)
     local whereFrom = math.random(2)
-    local tanque = display.newImageRect(mainGroup, "tanque.png", 50, 50 )
+    local tanque = display.newImageRect(mainGroup, "src/imagem/tanque.png", 50, 50 )
     table.insert( tanqueTable, tanque)
     tanque.y = 500
     physics.addBody(tanque, "dynamic", {radius = 25, isSensor = true})
@@ -300,7 +300,8 @@ local function gameLoop3()
 end
 -------Leva para a tela de menu----------------------------------------------------------
 local function endGame()
-    composer.gotoScene( "restart", { time=800, effect="crossFade" } )
+    composer.setVariable('finalTime', tempo)
+    composer.gotoScene( "Cenas.restart", { time=800, effect="crossFade" } )
 end
 
 local function sumirSetas()
@@ -377,7 +378,7 @@ local function colizao( self, event )
     
     if(obj2.myName == "tanque" and obj1.myName == "boneco" )
     then
-        local coletandoTanque = audio.loadStream( "vidaAudio.ogg")
+        local coletandoTanque = audio.loadStream( "src/audio/vidaAudio.ogg")
 		audio.play(coletandoTanque, {channel = 5})
 		audio.setVolume( 1.0 , {channel = 5} )
         display.remove(obj2)
@@ -458,7 +459,7 @@ function scene:show( event )
         -- Code here runs when the scene is entirely on screen
         Runtime:addEventListener("enterFrame", movePlayer)
         -- timer.performWithDelay(16000, velocidadeGerador, 3)
-        timer.performWithDelay(5000, aumentarVelocidade, 3)
+        timer.performWithDelay(10000, aumentarVelocidade, 3)
         timer.performWithDelay(3000, sumirSetas, 1)
         descendoVidas = timer.performWithDelay( 3000, descer, 0)
         -- Runtime:addEventListener("enterFrame", move)

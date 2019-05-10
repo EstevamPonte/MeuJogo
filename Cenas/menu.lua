@@ -12,28 +12,66 @@ local scene = composer.newScene()
 
 local backGroup = display.newGroup()
 local mainGroup = display.newGroup()
+local bolhaTable = {}
 
+local physics = require( "physics" )
+physics.start()
+physics.setGravity(0,0)
 
 local function gotoGame()
-	composer.gotoScene( "game", {time=800, effect="crossFade"} )	
+	composer.gotoScene( "Cenas.game", {time=800, effect="crossFade"} )	
 end
 
 
-local background = display.newImageRect( backGroup, "oceano.png", 500, 900)
+local function gerarBolha(event)
+    local whereFrom = math.random(1)
+    local bolha = display.newImageRect(mainGroup, "src/imagem/bubble.png", 35, 35 )
+    table.insert( bolhaTable, bolha)
+    physics.addBody(bolha, "dynamic")
+    bolha.myName = "bolha"
+    bolha.y = 500
+    
+    
+     if ( whereFrom == 1 ) then
+        -- From the left
+        bolha.x = math.random(300)
+        bolha:setLinearVelocity( 0, math.random( -100, -50 ) )
+     end
+end
+
+local function gameLoop2()
+    gerarBolha()
+
+    for i = #bolhaTable, 1, -1 do
+        local esseBolha = bolhaTable[i]
+
+        if ( esseBolha.x < -100 or
+            esseBolha.x > display.contentWidth + 100 or
+            esseBolha.y < -100 or
+            esseBolha.y > display.contentHeight + 100 )
+        then
+            display.remove( esseBolha )
+            table.remove( bolhaTable, i )
+        end
+
+    end
+end
+
+local background = display.newImageRect( backGroup, "src/imagem/oceano.png", 500, 900)
 background.x = display.contentCenterX
 background.y = display.contentCenterY
 
-local title = display.newImageRect( mainGroup ,"LOGO.png", 800, 700 )
+local title = display.newImageRect( mainGroup ,"src/imagem/LOGO.png", 800, 700 )
 title.x = display.contentCenterX
 title.y = display.contentCenterY -150
 title.width=300
 title.height=200
 
-local restartButton = display.newImageRect( mainGroup ,"restart.png", 500, 500 )
-restartButton.x = display.contentCenterX
-restartButton.y = display.contentCenterY
-restartButton.width=165
-restartButton.height=95
+local playButton = display.newImageRect( mainGroup ,"src/imagem/play2.png", 500, 500 )
+playButton.x = display.contentCenterX
+playButton.y = display.contentCenterY
+playButton.width=160
+playButton.height=100
 
 
 
@@ -48,7 +86,9 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 	sceneGroup:insert(backGroup);
-    sceneGroup:insert(mainGroup);
+	sceneGroup:insert(mainGroup);
+	
+	-- physics.setDrawMode("hybrid")
 	
 
 end
@@ -65,7 +105,8 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
-		restartButton:addEventListener( "tap", gotoGame )
+		playButton:addEventListener( "tap", gotoGame )
+		geradorDeBolha = timer.performWithDelay( 2000, gameLoop2, 0 )
 	end
 end
 
@@ -78,9 +119,10 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-
+		timer.cancel(geradorDeBolha)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
+		composer.removeScene("menu");
 
 	end
 end
