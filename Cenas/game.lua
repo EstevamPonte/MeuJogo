@@ -159,7 +159,7 @@ background:addEventListener("touch", playerVelocity)
 -- Gerando varios peixes------------------------------------------------------------------------------
 
 local function aumentarVelocidade()
-    velocidadePeixe = velocidadePeixe -1100
+    velocidadePeixe = velocidadePeixe -100
     
 end
 
@@ -463,7 +463,7 @@ function scene:show( event )
         -- Code here runs when the scene is entirely on screen
         Runtime:addEventListener("enterFrame", movePlayer)
         -- timer.performWithDelay(16000, velocidadeGerador, 3)
-        timer.performWithDelay(10000, aumentarVelocidade, 3)
+        velocidadeGerada = timer.performWithDelay(1000, aumentarVelocidade, 30)
         timer.performWithDelay(3000, sumirSetas, 1)
         descendoVidas = timer.performWithDelay( 3000, descer, 0)
         -- Runtime:addEventListener("enterFrame", move)
@@ -482,7 +482,8 @@ function scene:hide( event )
 	local phase = event.phase
 
 	if ( phase == "will" ) then
-		-- Code here runs when the scene is on screen (but is about to go off screen)
+        -- Code here runs when the scene is on screen (but is about to go off screen)
+        timer.cancel(velocidadeGerada)
         timer.cancel(geradorDePeixe);
         timer.cancel(geradorDeBolha)
         timer.cancel(geradorDeTanque)
