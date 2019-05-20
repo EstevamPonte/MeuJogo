@@ -74,6 +74,12 @@ playButton.width=160
 playButton.height=100
 
 
+local sobre = display.newImageRect( mainGroup ,"src/imagem/Sobre.png", 500, 500 )
+sobre.x = display.contentCenterX
+sobre.y = display.contentCenterY + 100
+sobre.width=160
+sobre.height=100
+
 
 local musica = audio.loadStream( "src/audio/telaMenuAudio.mp3")
 audio.play(musica, {channel = 2, loops = -1})

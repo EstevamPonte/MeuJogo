@@ -12,6 +12,7 @@ local scene = composer.newScene()
 
 local backGroup = display.newGroup()
 local mainGroup = display.newGroup()
+local uiGrup = display.newGroup()
 
 
 local function gotoGame()
@@ -35,11 +36,20 @@ restartButton.y = display.contentCenterY + 30
 restartButton.width=165
 restartButton.height=95
 
+local telaMenu = display.newImageRect( mainGroup ,"src/imagem/menu.png", 500, 500 )
+telaMenu.x = display.contentCenterX
+telaMenu.y = display.contentCenterY + 130
+telaMenu.width=165
+telaMenu.height=95
+
 local musica = audio.loadStream( "src/audio/telaMenuAudio.mp3")
 audio.play(musica, {channel = 2, loops = -1})
 
 
-
+local pontuacao = composer.getVariable( "finalTime" )
+print(pontuacao)
+local countText = display.newText( uiGrup, "Final Time: "..pontuacao, display.contentCenterX, 190, "src/font/AmaticSC-Bold.ttf",50 )
+countText:setFillColor( 0, 0, 0 )
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -51,12 +61,10 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 	sceneGroup:insert(backGroup);
-    sceneGroup:insert(mainGroup);
+	sceneGroup:insert(mainGroup);
+	sceneGroup:insert(uiGrup)
 	
-	local pontuacao = composer.getVariable( "finalTime" )
-	print(pontuacao)
-	local countText = display.newText( mainGroup, "Final Time: "..pontuacao, display.contentCenterX, 190, "src/font/AmaticSC-Bold.ttf",50 )
-	countText:setFillColor( 0, 0, 0 )
+	
 end
 
 
