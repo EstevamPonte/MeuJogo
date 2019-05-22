@@ -130,7 +130,6 @@ end
 -- hide()
 function scene:hide( event )
 
-	local sceneGroup = self.view
 	local phase = event.phase
 
 	if ( phase == "will" ) then
@@ -147,8 +146,7 @@ end
 
 -- destroy()
 function scene:destroy( event )
-
-	local sceneGroup = self.view
+	package.loaded["Cenas.menu"] = nil
 	-- Code here runs prior to the removal of scene's view
 
 end

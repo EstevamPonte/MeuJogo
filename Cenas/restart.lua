@@ -79,7 +79,6 @@ end
 -- show()
 function scene:show( event )
 
-	local sceneGroup = self.view
 	local phase = event.phase
 
 	if ( phase == "will" ) then
@@ -96,7 +95,6 @@ end
 -- hide()
 function scene:hide( event )
 
-	local sceneGroup = self.view
 	local phase = event.phase
 
 	if ( phase == "will" ) then
@@ -105,14 +103,14 @@ function scene:hide( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
 		composer.removeScene("Cenas.restart");
+
 	end
 end
 
 
 -- destroy()
 function scene:destroy( event )
-
-	local sceneGroup = self.view
+	package.loaded["Cenas.restart"] = nil
 	-- Code here runs prior to the removal of scene's view
 
 end

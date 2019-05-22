@@ -454,7 +454,6 @@ end
 
 function scene:show( event )
 
-	local sceneGroup = self.view
 	local phase = event.phase
 
 	if ( phase == "will" ) then
@@ -479,7 +478,6 @@ end
 -- hide()
 function scene:hide( event )
 
-	local sceneGroup = self.view
 	local phase = event.phase
 
 	if ( phase == "will" ) then
@@ -504,9 +502,8 @@ end
 -- destroy()
 function scene:destroy( event )
 
-	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-
+    package.loaded["Cenas.restart"] = nil
 end
 
 
