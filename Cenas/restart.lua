@@ -12,11 +12,15 @@ local scene = composer.newScene()
 
 local backGroup = display.newGroup()
 local mainGroup = display.newGroup()
-local uiGrup = display.newGroup()
+local uiGroup = display.newGroup()
 
 
 local function gotoGame()
 	composer.gotoScene( "Cenas.game", {time=800, effect="crossFade"} )	
+end
+
+local function gotoMenu()
+	composer.gotoScene( "Cenas.menu", {time=800, effect="crossFade"} )	
 end
 
 
@@ -48,7 +52,7 @@ audio.play(musica, {channel = 2, loops = -1})
 
 local pontuacao = composer.getVariable( "finalTime" )
 print(pontuacao)
-local countText = display.newText( uiGrup, "Final Time: "..pontuacao, display.contentCenterX, 190, "src/font/AmaticSC-Bold.ttf",50 )
+local countText = display.newText( uiGroup, "Final Time: "..pontuacao, display.contentCenterX, 190, "src/font/AmaticSC-Bold.ttf",50 )
 countText:setFillColor( 0, 0, 0 )
 
 -- -----------------------------------------------------------------------------------
@@ -60,11 +64,15 @@ function scene:create( event )
 	
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
+
+	print("--ENTROU---")
 	sceneGroup:insert(backGroup);
 	sceneGroup:insert(mainGroup);
-	sceneGroup:insert(uiGrup)
-	
-	
+	sceneGroup:insert(uiGroup);
+
+	print(backGroup)
+	print(mainGroup)
+	print(uiGroup)
 end
 
 
@@ -80,6 +88,7 @@ function scene:show( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
 		restartButton:addEventListener( "tap", gotoGame )
+		telaMenu:addEventListener( "tap", gotoMenu )
 	end
 end
 

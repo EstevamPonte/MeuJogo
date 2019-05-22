@@ -12,77 +12,26 @@ local scene = composer.newScene()
 
 local backGroup = display.newGroup()
 local mainGroup = display.newGroup()
+local uiGroup = display.newGroup()
 local bolhaTable = {}
-
-local physics = require( "physics" )
-physics.start()
-physics.setGravity(0,0)
-
-local function gotoGame()
-	composer.gotoScene( "Cenas.game", {time=800, effect="crossFade"} )	
-end
-
-local function gotoAbout()
-	composer.gotoScene( "Cenas.about", {time=800, effect="crossFade"} )	
-end
-
-local function gerarBolha(event)
-    local whereFrom = math.random(1)
-    local bolha = display.newImageRect(mainGroup, "src/imagem/bubble.png", 35, 35 )
-    table.insert( bolhaTable, bolha)
-    physics.addBody(bolha, "dynamic")
-    bolha.myName = "bolha"
-    bolha.y = 500
-    
-    
-     if ( whereFrom == 1 ) then
-        -- From the left
-        bolha.x = math.random(300)
-        bolha:setLinearVelocity( 0, math.random( -100, -50 ) )
-     end
-end
-
-local function gameLoop2()
-    gerarBolha()
-
-    for i = #bolhaTable, 1, -1 do
-        local esseBolha = bolhaTable[i]
-
-        if ( esseBolha.x < -100 or
-            esseBolha.x > display.contentWidth + 100 or
-            esseBolha.y < -100 or
-            esseBolha.y > display.contentHeight + 100 )
-        then
-            display.remove( esseBolha )
-            table.remove( bolhaTable, i )
-        end
-
-    end
-end
 
 local background = display.newImageRect( backGroup, "src/imagem/oceano.png", 500, 900)
 background.x = display.contentCenterX
 background.y = display.contentCenterY
 
-local title = display.newImageRect( mainGroup ,"src/imagem/LOGO.png", 800, 700 )
-title.x = display.contentCenterX
-title.y = display.contentCenterY -150
-title.width=300
-title.height=200
+local texto = display.newImageRect( backGroup, "src/imagem/Texto2.png", 242, 200)
+texto.x = display.contentCenterX
+texto.y = display.contentCenterY
+texto.width=300
+texto.height=400
 
-local playButton = display.newImageRect( mainGroup ,"src/imagem/play2.png", 500, 500 )
-playButton.x = display.contentCenterX
-playButton.y = display.contentCenterY
-playButton.width=160
-playButton.height=100
+local menu = display.newImageRect( backGroup, "src/imagem/menu.png", 161, 66)
+menu.x = display.contentCenterX
+menu.y = display.contentCenterY + 225
 
-
-local sobre = display.newImageRect( mainGroup ,"src/imagem/Sobre.png", 500, 500 )
-sobre.x = display.contentCenterX
-sobre.y = display.contentCenterY + 100
-sobre.width=160
-sobre.height=100
-
+local function gotoMenu()
+	composer.gotoScene( "Cenas.menu", {time=800, effect="crossFade"} )	
+end
 
 local musica = audio.loadStream( "src/audio/telaMenuAudio.mp3")
 audio.play(musica, {channel = 2, loops = -1})
@@ -100,8 +49,10 @@ function scene:create( event )
 	
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
-	sceneGroup:insert(backGroup);
-	sceneGroup:insert(mainGroup);
+	sceneGroup:insert(backGroup)
+	sceneGroup:insert(mainGroup)
+	sceneGroup:insert(uiGroup);
+	
 	
 	-- physics.setDrawMode("hybrid")
 	
@@ -120,9 +71,8 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
-		playButton:addEventListener( "tap", gotoGame )
-		sobre:addEventListener( "tap", gotoAbout )
-		geradorDeBolha = timer.performWithDelay( 2000, gameLoop2, 0 )
+		menu:addEventListener( "tap", gotoMenu )
+		
 	end
 end
 
@@ -135,11 +85,10 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-		timer.cancel(geradorDeBolha)
 		audio.stop(2)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		composer.removeScene("Cenas.menu");
+		composer.removeScene("Cenas.about");
 
 	end
 end

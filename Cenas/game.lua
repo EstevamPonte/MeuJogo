@@ -39,7 +39,8 @@ audio.play(musica, {channel = 2, loops = -1})
 audio.setVolume(0.3)
 
 
-local objectSheet2 = graphics.newImageSheet( "src/imagem/folha.png", sheetOptions2 )
+local objectSheet2 = graphics.newImageSheet( "src/imagem/peixesanimados.png", sheetOptions2 )
+
 
 
 local function gotoGame()
