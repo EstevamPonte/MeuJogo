@@ -126,11 +126,13 @@ local setaesquerda = display.newImageRect(mainGroup, "src/imagem/seta-1.png",60,
 setaesquerda.x = display.contentCenterX - 90
 setaesquerda.y = display.contentCenterY+ 220
 setaesquerda.myName="esquerda"
+transition.blink(setaesquerda, { time=2250 })
 
 local setadireita = display.newImageRect(mainGroup, "src/imagem/seta-2.png",60, 60)
 setadireita.x = display.contentCenterX + 90
 setadireita.y = display.contentCenterY+ 220
 setadireita.myName="direita"
+transition.blink(setadireita, { time=2250 })
 
 moverx = 0 -- variavel usada para mover o boneco ao longo do eixo x
 velocidade = 6 -- Set Walking velocidade
@@ -164,9 +166,6 @@ local function aumentarVelocidade()
     
 end
 
-local function velocidadeGerador()
-   
-end
 
 
 local function gerarPeixe(event)
@@ -503,7 +502,7 @@ end
 function scene:destroy( event )
 
 	-- Code here runs prior to the removal of scene's view
-    package.loaded["Cenas.restart"] = nil
+    package.loaded["Cenas.game"] = nil
 end
 
 

@@ -19,11 +19,11 @@ local background = display.newImageRect( backGroup, "src/imagem/oceano.png", 500
 background.x = display.contentCenterX
 background.y = display.contentCenterY
 
-local texto = display.newImageRect( backGroup, "src/imagem/Texto2.png", 242, 200)
+local texto = display.newImageRect( backGroup, "src/imagem/Texto2.png", 900, 1400)
 texto.x = display.contentCenterX
-texto.y = display.contentCenterY
+texto.y = display.contentCenterY -25
 texto.width=300
-texto.height=400
+texto.height=550
 
 local menu = display.newImageRect( backGroup, "src/imagem/menu.png", 161, 66)
 menu.x = display.contentCenterX
@@ -93,7 +93,7 @@ end
 
 -- destroy()
 function scene:destroy( event )
-	package.loaded["Cenas.menu"] = nil
+	package.loaded["Cenas.about"] = nil
 	-- Code here runs prior to the removal of scene's view
 
 end
